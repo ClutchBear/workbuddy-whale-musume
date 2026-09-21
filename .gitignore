@@ -1,0 +1,22 @@
+# 构建产物
+/target/
+
+# 运行期产物（日志 / 状态 / 可执行文件不入库）
+/dist/wb-pet.exe
+/dist/workbuddy-pet.exe
+/dist/*.log
+/dist/whale-state.json
+
+# 自测与一次性调试脚本产物
+/_tmp/
+/_old/
+/_selftest/workbuddy-pet.exe
+/_selftest/workbuddy-pet.log
+/_selftest/fake.db
+
+# rc.exe 编译产物（由 app.rc 重新生成）
+/tools/app.res
+
+# 系统杂项
+Thumbs.db
+.DS_Store
