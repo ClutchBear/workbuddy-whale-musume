@@ -12,6 +12,14 @@ WorkBuddy 桌宠「小鲸鱼娘」的 **非官方 Rust 原生移植版**，逐�
 
 ---
 
+## 预览
+
+![鲸鱼娘工作态：抱着笔记本电脑，身后一圈淡蓝呼吸辉光](preview.png)
+
+> **真实截图，不是效果图。** 由本项目 exe 在 Windows 11 上实际运行时抓取的窗口画面 —— 当前是**工作态**（检测到 WorkBuddy 在运行时自动切换，对齐原版的淡蓝呼吸辉光），其余状态见[功能总览](#一功能总览)。
+
+---
+
 ## 直接下载（免编译）
 
 不想装 Rust 工具链的话，直接拿现成的包：
@@ -224,6 +232,7 @@ examples/        # gen_icon.rs（ico 生成）、alpha_check.rs（alpha 通道�
 | 复用什么 | 位置 |
 |---|---|
 | 全套立绘（92 张 WEBP，字节级同源） | `assets/*.webp`、`_selftest/assets/*.webp`（自测夹具）、`dist/assets/*`（运行时副本，不入库） |
+| 预览截图（`preview.png` 实拍自本项目运行画面，画面中的立绘版权归上游） | `preview.png` |
 | 任务 / 成就 / 称号 / 台词数据（由 `tools/gen-data.mjs` 从上游 `whale-moe-core.js` 原样导出） | `src/data.rs`（文件头已标注上游仓库地址） |
 | 状态机语义与交互设计（Rust 重实现） | `src/core.rs` |
 
