@@ -10,6 +10,7 @@
 """
 import ctypes
 import ctypes.wintypes as wt
+import os
 import subprocess
 import sys
 import time
@@ -112,7 +113,10 @@ def grep(lines, kw):
 
 
 def main():
-    log = sys.argv[1] if len(sys.argv) > 1 else r"D:\work\demo\workbuddy-pet-native\dist\workbuddy-pet.log"
+    # 日志默认取本项目的 dist/（原先写死搬家前的 D:\work\demo\...）
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    default_log = os.path.join(root, "dist", "workbuddy-pet.log")
+    log = sys.argv[1] if len(sys.argv) > 1 else default_log
     hwnd = find_pet()
     if not hwnd:
         print("✗ 没找到桌宠窗口，先把它跑起来")

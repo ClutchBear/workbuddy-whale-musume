@@ -6,20 +6,26 @@ import os
 import shutil
 import sqlite3
 import subprocess
+import sys
 import time
 
-ROOT = r"D:\work\demo\workbuddy-pet-native"
+# 项目根 = 本文件所在 tools/ 的上一级。
+# （原先写死成搬家前的 D:\work\demo\workbuddy-pet-native，项目搬走后这脚本就废了。）
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TDIR = os.path.join(ROOT, "_selftest")
 DB = os.path.join(TDIR, "fake.db")
 EXE = os.path.join(TDIR, "workbuddy-pet.exe")
 LOG = os.path.join(TDIR, "workbuddy-pet.log")
+# 待测产物，可用 --exe 覆盖（做「重构前 vs 重构后」对照自测时用得上）
+EXE_SRC = os.path.join(ROOT, "target", "release", "workbuddy-pet.exe")
 
 now_ms = lambda: int(time.time() * 1000)
 
 
 def kill():
+    # errors="replace"：taskkill 在本机以 GBK 输出，别让解码失败打断整个测试
     subprocess.run(["taskkill", "/F", "/IM", "workbuddy-pet.exe"],
-                   capture_output=True, text=True)
+                   capture_output=True, text=True, errors="replace")
 
 
 def make_db(rows):
@@ -52,16 +58,42 @@ def step(title, rows, wait):
 
 
 def main():
+    global EXE_SRC
+    argv = sys.argv[1:]
+    if "--exe" in argv:
+        EXE_SRC = os.path.abspath(argv[argv.index("--exe") + 1])
+    if not os.path.exists(EXE_SRC):
+        sys.exit("找不到待测产物：%s（先 cargo build --release）" % EXE_SRC)
+    print("待测产物 = %s" % EXE_SRC)
+
     kill()
     time.sleep(1)
-    shutil.rmtree(TDIR, ignore_errors=True)
-    os.makedirs(os.path.join(TDIR, "assets"))
-    shutil.copy(os.path.join(ROOT, "target", "release", "workbuddy-pet.exe"), TDIR)
+    # 只清运行期产物；**不要** rmtree 整个 _selftest/ —— assets/ 里的三个立绘夹具
+    # 是入库文件（.gitignore 只排 *.exe / *.log / fake.db），删掉就得从 git 捞回来。
+    os.makedirs(os.path.join(TDIR, "assets"), exist_ok=True)
+    for f in (DB, DB + "-wal", DB + "-shm", LOG):
+        if os.path.exists(f):
+            os.remove(f)
+    shutil.copy(EXE_SRC, TDIR)
+    # 夹具：优先用 _selftest/assets 里已备好的；缺了再从 assets/ 找（命名可能已变）
+    missing = []
     for n in ("idle.webp", "running.webp", "sleep.webp"):
-        shutil.copy(os.path.join(ROOT, "assets", n), os.path.join(TDIR, "assets", n))
+        dst = os.path.join(TDIR, "assets", n)
+        if os.path.exists(dst):
+            continue
+        src = os.path.join(ROOT, "assets", n)
+        if not os.path.exists(src):
+            missing.append(n)
+            continue
+        shutil.copy(src, dst)
+    if missing:
+        sys.exit("自测夹具缺失：%s（应在 _selftest/assets/ 里，或 assets/ 有同名文件）"
+                 % ", ".join(missing))
 
     env = dict(os.environ)
     env["WORKBUDDY_DB"] = DB
+    # 开 trace：四态迁移的判定日志走 logf（默认关闭），不开的话日志是空的
+    env["WORKBUDDY_PET_TRACE"] = "1"
     proc = subprocess.Popen([EXE], cwd=TDIR, env=env)
     print(f"已启动 pid={proc.pid} WORKBUDDY_DB={DB}")
 
@@ -87,7 +119,7 @@ def main():
     time.sleep(5)
 
     step("⑥ 重建库，回到 working → 期望恢复 working（标题取 cwd 末段）",
-         [("c", "working", None, -500, "", r"D:\work\demo\workbuddy-pet-native")], 5)
+         [("c", "working", None, -500, "", ROOT)], 5)
 
     print("\n================ 日志 ================")
     with open(LOG, encoding="utf-8", errors="replace") as f:

@@ -210,16 +210,41 @@ Windows 图标缓存，换个目录看或重启资源管理器即可。
 
 ```
 src/
-├── main.rs      # 窗口过程 / 消息循环 / 点击分发 / 定时器 / 单实例互斥
-├── render.rs    # Canvas（预乘 alpha 软光栅）/ 主题 / 各页面绘制 / 天气特效
-├── core.rs      # 动画状态机（姿态 / 情绪 / 气泡 / 换装时序）
-├── assets.rs    # 立绘 / emoji 资源加载
-├── state.rs     # 成长数值存档（serde JSON）
-├── data.rs      # 任务 / 成就 / 称号静态数据
-├── weather.rs   # Open-Meteo 客户端（WinHTTP，5s/10s 超时，后台线程）
-tools/           # 图标资源、自测脚本、数据生成
-examples/        # gen_icon.rs（ico 生成）、alpha_check.rs（alpha 通道验证）
+├── main.rs         # 只做装配：crate 属性 + mod 声明 + fn main()
+├── log.rs          # 日志（写 exe 同目录 workbuddy-pet.log）
+├── platform/       # 平台原语（Win32），**不认识 App**
+│   ├── mod.rs      #   时间 / 显示器工作区 / 默认落点
+│   ├── menu.rs     #   右键菜单与菜单项 id（M_*）
+│   └── tray.rs     #   托盘图标（添加 / 更新 / 移除 / HICON 生成）
+├── app/            # 应用层（App 定义在 mod.rs）
+│   ├── mod.rs      #   App 结构体、消息常量、全局槽、子模块装配
+│   ├── boot.rs     #   单实例 / 建窗 / 起线程 / 开场与跨日
+│   ├── sample.rs   #   WorkBuddy 会话库只读采样
+│   ├── speech.rs   #   气泡打字机 / 台词挑选 / 姿势与情绪
+│   ├── events.rs   #   事件 → 成长值 / 任务 / 成就 / 主动行为
+│   ├── fx.rs       #   粒子与头顶大表情
+│   ├── interact.rs #   点击吉祥物 / 菜单命令 / 键盘与文本编辑
+│   ├── pointer.rs  #   拖动 / 甩动惯性 / 点击分发 / 窗口显隐
+│   ├── game.rs     #   小游戏
+│   ├── tick.rs     #   主循环（状态机推进与各项定时）
+│   ├── paint.rs    #   重绘 / 贴屏（UpdateLayeredWindow）/ 列表页滚动上限
+│   ├── physics.rs  #   速度采样 / 缓动 / 松手回弹
+│   └── wndproc.rs  #   窗口过程与消息分发（含同线程重入守卫）
+├── render.rs       # Canvas（预乘 alpha 软光栅）/ 主题 / 各页面绘制 / 天气特效
+├── core.rs         # 动画状态机（姿态 / 情绪 / 气泡 / 换装时序）
+├── assets.rs       # 立绘 / emoji 资源加载
+├── state.rs        # 成长数值存档（serde JSON）
+├── data.rs         # 任务 / 成就 / 称号静态数据
+├── weather.rs      # Open-Meteo 客户端（WinHTTP，5s/10s 超时，后台线程）
+tools/              # 图标资源、自测脚本、数据生成
+examples/           # gen_icon.rs（ico 生成）、alpha_check.rs（alpha 通道验证）
 ```
+
+分层约定：`platform/` 只依赖 Win32，不依赖应用状态；`app/` 的各子模块都是
+`App` 定义处的**后代模块**——按 Rust 的可见性规则天然能访问它的私有字段，
+所以 `App` 的 71 个字段不必逐个 `pub`，字段访问路径保持扁平（`app.pose` 而非
+`app.anim.pose`）。收益是：改气泡动画时，`speech.rs` / `paint.rs` 里的函数
+不再和拖拽惯性、成就计算挤在同一个 2531 行文件里。
 
 ## 七、许可与致谢
 
