@@ -1168,7 +1168,7 @@ pub fn draw_game(cv: &mut Canvas, v: &GameView, hits: &mut Vec<HitRect>) {
             Some((Bubble::Bomb, _)) => ((240, 90, 90, 255), "炸弹"),
             Some((Bubble::Star, _)) => ((255, 196, 60, 255), "星星"),
             Some((Bubble::Normal, born)) => {
-                let age = (crate::now_ms() - born) as f32 / crate::core::Game1::BUBBLE_LIFE_MS as f32;
+                let age = (crate::platform::now_ms() - born) as f32 / crate::core::Game1::BUBBLE_LIFE_MS as f32;
                 let a = (255.0 * (1.0 - age * 0.55)) as u8;
                 ((120, 190, 250, a), "泡泡")
             }

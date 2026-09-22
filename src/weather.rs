@@ -88,7 +88,7 @@ fn https_get(host: &str, path: &str) -> Option<String> {
         // 硬超时：默认 resolve 是无限等，线程卡死会让「测试连接」永远不出结果。
         // （解析 5s / 连接 5s / 发送 5s / 接收 10s，最坏 ~25s 必返回）
         if WinHttpSetTimeouts(session, 5000, 5000, 5000, 10000).is_err() {
-            crate::logf("weather: set timeouts failed");
+            crate::log::logf("weather: set timeouts failed");
         }
         let connect = WinHttpConnect(session, PCWSTR(whost.as_ptr()), 443, 0);
         if connect.is_null() {
