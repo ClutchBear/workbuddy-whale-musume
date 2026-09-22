@@ -7,6 +7,9 @@
 /dist/*.log
 /dist/whale-state.json
 
+# dist 是运行目录：资源由根 assets/ 复制而来，不入库（避免 13MB 重复与不同步）
+/dist/assets/
+
 # 自测与一次性调试脚本产物
 /_tmp/
 /_old/

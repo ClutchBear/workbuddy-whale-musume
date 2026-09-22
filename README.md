@@ -1,6 +1,6 @@
-# workbuddy-whale-musume（鲸鱼娘桌宠 · Rust 原生版）
+# workbuddy-whale-musume（鲸鱼娘桌宠 · Rust 原生版 · 非官方移植）
 
-WorkBuddy 桌宠「小鲸鱼娘」的 **Rust 原生移植版**，逐项对齐原版 Web 桌宠（dsh-whale-musume）的动画、交互与玩法，但不依赖 WebView2 / 浏览器 / 任何运行时——一个约 2 MB 的单文件 exe + 一目录 WEBP 立绘。
+WorkBuddy 桌宠「小鲸鱼娘」的 **非官方 Rust 原生移植版**，逐项对齐原版 Web 桌宠（[dsh-whale-musume](https://github.com/Sutera-Diffusus/dsh-whale-musume)）的动画、交互与玩法，但不依赖 WebView2 / 浏览器 / 任何运行时——一个约 2 MB 的单文件 exe + 一目录 WEBP 立绘。
 
 - 技术栈：Rust + Win32 GDI（`UpdateLayeredWindow` 逐像素透明分层窗口）+ SQLite 直读
 - 平台：Windows 10/11（x64），自动适配 DPI（Per-Monitor V2）
@@ -156,6 +156,24 @@ tools/           # 图标资源、自测脚本、数据生成
 examples/        # gen_icon.rs（ico 生成）、alpha_check.rs（alpha 通道验证）
 ```
 
-## 七、许可
+## 七、许可与致谢
 
-仅供个人学习与内部使用；立绘版权归原项目 dsh-whale-musume 所有。
+本项目以 **MIT 许可**发布，见 [`LICENSE`](LICENSE)。这是一个**非官方移植版**，与上游作者无隶属关系。
+
+**上游**：[dsh-whale-musume](https://github.com/Sutera-Diffusus/dsh-whale-musume)（MIT，Copyright (c) 2026 Sutera-Diffusus）。
+
+本项目复用了上游的以下内容，其原始版权声明已完整保留于 [`LICENSE-upstream`](LICENSE-upstream)：
+
+| 复用什么 | 位置 |
+|---|---|
+| 全套立绘（92 张 WEBP，字节级同源） | `assets/**/*.webp`、`_selftest/assets/*.webp` |
+| 任务 / 成就 / 称号 / 台词数据（由 `tools/gen-data.mjs` 从上游 `whale-moe-core.js` 原样导出） | `src/data.rs`（文件头已标注上游仓库地址） |
+| 状态机语义与交互设计（Rust 重实现） | `src/core.rs` |
+
+**其他第三方素材**：
+
+- emoji 图标（236 张 PNG）来自 [Twemoji](https://github.com/jdecked/twemoji)（MIT）。
+- exe 图标（`tools/pet.ico`）由上游立绘 `assets/idle-cute.webp` 裁剪生成。
+
+**依赖库**：`windows` / `image` / `serde` / `serde_json`（MIT OR Apache-2.0）、`rusqlite` / `libsqlite3-sys`（MIT，内含 Public Domain 的 SQLite）。全部与 MIT 兼容，无 copyleft 传染。
+
