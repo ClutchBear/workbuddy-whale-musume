@@ -1,0 +1,69 @@
+WorkBuddy 鲸鱼娘桌宠 · Windows 版
+=================================
+
+一个约 2 MB 的单文件 exe + 一目录立绘，不依赖 WebView2 / 浏览器 / 任何运行时。
+
+
+怎么用
+------
+1. 把整个文件夹解压到任意位置（比如 D:\wb-pet\）
+   ⚠️ 不要只解压 exe —— assets\ 目录必须和 exe 放在一起，否则立绘不显示。
+2. 双击 wb-pet.exe
+3. 立绘上「右键」打开菜单；透明空白处点击会穿透到下层窗口（设计如此）
+4. 退出：右键菜单 →「退出」，或点过窗口后按 ESC
+
+
+文件夹里有什么
+--------------
+  wb-pet.exe              主程序
+  assets\                 立绘 92 张（.webp）+ emoji 236 张（emoji\*.png）
+  whale-state.json        成长数值存档（首次运行自动生成）
+  workbuddy-pet.log       日志（每次启动重写，排查问题用）
+  LICENSE                 本项目 MIT 许可
+  LICENSE-upstream        上游 dsh-whale-musume 的 MIT 许可原文
+  THIRD-PARTY-LICENSES.md 依赖库许可清单
+  使用说明.txt            本文件
+
+
+常见问题
+--------
+Q: 启动后什么都没有？
+A: 确认 assets\ 目录和 exe 在同一层且非空。看 workbuddy-pet.log 里
+   「立绘 N 张」——N 为 0 就是路径不对。
+
+Q: 桌宠被莫名杀掉？
+A: exe 已经改名成 wb-pet.exe 了，不用再改。WorkBuddy 主程序只会强杀
+   叫 workbuddy-pet.exe 的同名进程，所以本包不会受影响。
+
+Q: 右键没反应？
+A: 要点在立绘「不透明」的地方。透明区域是点击穿透的。
+
+Q: 杀毒软件报警？
+A: 这是 Rust 编译的无签名 exe，部分杀软对未签名程序会误报。
+   源码在 https://github.com/ClutchBear/workbuddy-whale-musume ，可自行编译比对。
+
+Q: 想换立绘？
+A: 直接替换 assets\ 里的 .webp 文件即可，不用重新编译。
+   文件名要和程序找的一致，缺图会回退到默认姿态。
+
+Q: 存档在哪？想备份或重置？
+A: 同目录的 whale-state.json。删掉即重置（会在下次启动时重新生成）。
+
+
+系统要求
+--------
+Windows 10 / 11 64 位。自动适配 DPI（Per-Monitor V2）、支持多显示器。
+
+
+许可与归属
+----------
+本项目以 MIT 许可发布，是非官方移植版，与上游作者无隶属关系。
+
+  上游：dsh-whale-musume — https://github.com/Sutera-Diffusus/dsh-whale-musume
+        MIT，Copyright (c) 2026 Sutera-Diffusus
+        （全套立绘与任务/成就/台词数据来自上游，原始声明见 LICENSE-upstream）
+
+  本移植：https://github.com/ClutchBear/workbuddy-whale-musume
+        MIT，Copyright (c) 2026 ClutchBear
+
+  emoji 图标：Twemoji — https://github.com/jdecked/twemoji （MIT）

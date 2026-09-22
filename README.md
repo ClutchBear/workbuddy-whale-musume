@@ -1,5 +1,7 @@
 # workbuddy-whale-musume（鲸鱼娘桌宠 · Rust 原生版 · 非官方移植）
 
+[![构建状态](https://github.com/ClutchBear/workbuddy-whale-musume/actions/workflows/build.yml/badge.svg)](https://github.com/ClutchBear/workbuddy-whale-musume/actions/workflows/build.yml)
+
 WorkBuddy 桌宠「小鲸鱼娘」的 **非官方 Rust 原生移植版**，逐项对齐原版 Web 桌宠（[dsh-whale-musume](https://github.com/Sutera-Diffusus/dsh-whale-musume)）的动画、交互与玩法，但不依赖 WebView2 / 浏览器 / 任何运行时——一个约 2 MB 的单文件 exe + 一目录 WEBP 立绘。
 
 > **与上游的关系**：本项目由第三方（ClutchBear）独立开发，**非上游官方发布，与 dsh-whale-musume 作者无隶属关系**。「鲸鱼娘」为上游自创角色名，本项目沿用仅为说明移植来源。项目名、图标、立绘均取自上游（MIT），完整归属见 [第七节](#七许可与致谢)。
@@ -7,6 +9,24 @@ WorkBuddy 桌宠「小鲸鱼娘」的 **非官方 Rust 原生移植版**，逐�
 - 技术栈：Rust + Win32 GDI（`UpdateLayeredWindow` 逐像素透明分层窗口）+ SQLite 直读
 - 平台：Windows 10/11（x64），自动适配 DPI（Per-Monitor V2）
 - 角色：`assets/*.webp` 全套立绘 90+ 张（待机 / 工作 / 表情包 / 节日 / 天气 / 日常），运行时直接读文件、**换图不用重编译**
+
+---
+
+## 直接下载（免编译）
+
+不想装 Rust 工具链的话，直接拿现成的包：
+
+**→ 到 [Releases 页面](https://github.com/ClutchBear/workbuddy-whale-musume/releases) 下载 `workbuddy-whale-musume-*-win64.zip`**
+
+1. 解压到任意位置（例如 `D:\wb-pet\`）
+2. 双击 `wb-pet.exe`
+3. 立绘上**右键**打开菜单（透明空白处是点击穿透的）
+
+> ⚠️ 别只解压 exe —— `assets\` 目录必须和 exe 在同一层，否则立绘不显示。
+
+压缩包由 GitHub Actions 在 `windows-latest` 上从源码自动构建，见 [`.github/workflows/build.yml`](.github/workflows/build.yml)，产物可复现。想自己编译见 [第三节](#三构建与部署)。
+
+> 没有 Release 时，也可以在 [Actions 页面](https://github.com/ClutchBear/workbuddy-whale-musume/actions/workflows/build.yml) 找最近一次成功构建，下载 artifact（需登录 GitHub）。
 
 ---
 
@@ -92,13 +112,45 @@ Copy-Item -Recurse -Force assets dist\assets
 > **为什么叫 `wb-pet.exe`**：WorkBuddy 主程序会按进程名 `workbuddy-pet.exe` 定期强杀同名进程；改名后即可共存。
 
 ### 3. 更换 exe 图标（可选）
-图标源文件 `tools/pet.ico` 已通过 `build.rs` 链接（资源脚本 `tools/app.rc` → SDK `rc.exe` 编译的 `app.res` 会由 build 脚本自动重编）。想换成别的图：
+exe 图标通过 `build.rs` 链接 `tools/app.res` 实现。**`app.res` 已入库**，所以即便没装 Windows SDK 也能正常构建（否则全新 clone / CI 会因链接器报 `LNK1181` 直接失败）。
+
+流程：改 `tools/pet.ico` 或 `tools/app.rc` → 用 SDK 的 `rc.exe` **手动重新生成 `app.res`** → 重新编译。
+
 ```powershell
+# 1) 换图标源图：从立绘生成 pet.ico（或直接替换 tools/pet.ico）
 cargo run --release --example gen_icon   # 从 dist/assets/idle-cute.webp 重新生成 tools/pet.ico
+
+# 2) 重新编译资源（需要 Windows SDK 的 rc.exe；版本号按本机实际路径调整）
+& "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\rc.exe" /nologo /fo tools\app.res tools\app.rc
+
+# 3) 重新构建
+cargo build --release
 ```
+> `build.rs` 只负责把 `app.res` 路径传给链接器，**不会**替你编译 `.rc` —— 漏了第 2 步图标不会更新。
+> 万一 `app.res` 被删，构建会给出 cargo 警告并降级为「无图标的 exe」，不会直接失败。
 
 ### 4. 重新生成任务/成就数据（可选）
 `src/data.rs` 由 `tools/gen-data.mjs`（Node）从原版数据生成；日常改动直接编辑 `src/data.rs` 即可，不跑 Node。
+
+### 5. 自动构建与发布（GitHub Actions）
+`.github/workflows/build.yml` 会在推送到 `main` 或手动触发时编译打包，并上传为 artifact。推一个 `v*` 标签（如 `v0.3.0`）则会额外把 zip 挂到 Release 上：
+
+```powershell
+git tag v0.3.0
+git push origin v0.3.0
+```
+
+打出的 zip 结构等于 `dist/` 布局，外加许可声明与使用说明：
+
+```
+workbuddy-whale-musume-v0.3.0-win64.zip
+├── wb-pet.exe
+├── assets/                      (92 立绘 + 236 emoji)
+├── 使用说明.txt
+├── LICENSE / LICENSE-upstream / THIRD-PARTY-LICENSES.md
+```
+
+发布前会自动做三重校验：exe 体积与立绘/emoji 数量是否正常、有无运行期产物（`whale-state.json` / `*.log`）混入、zip 条目名是否全为正斜杠。
 
 ---
 
@@ -116,6 +168,9 @@ cd dist
 ---
 
 ## 五、常见问题（FAQ）
+
+**Q：一定要自己装 Rust 编译吗？**
+不用。到 [Releases](https://github.com/ClutchBear/workbuddy-whale-musume/releases) 下载现成的 zip，解压双击即可，见[开头的下载说明](#直接下载免编译)。
 
 **Q1：启动后什么都没有 / 立绘不显示？**
 确认 exe 旁边有 `assets/` 目录且非空。日志里会写「扫描到 N 张立绘」；为 0 就是路径不对。
