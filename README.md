@@ -179,3 +179,6 @@ examples/        # gen_icon.rs（ico 生成）、alpha_check.rs（alpha 通道�
 
 **依赖库**：`windows` / `image` / `serde` / `serde_json`（MIT OR Apache-2.0）、`rusqlite` / `libsqlite3-sys`（MIT，内含 Public Domain 的 SQLite）。全部与 MIT 兼容，无 copyleft 传染。
 
+**完整依赖许可清单**（69 个 crate 逐项列出，含运行时/构建期分类）见 [`THIRD-PARTY-LICENSES.md`](THIRD-PARTY-LICENSES.md)。
+
+
