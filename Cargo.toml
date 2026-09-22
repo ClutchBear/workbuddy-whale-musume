@@ -2,7 +2,7 @@
 name = "workbuddy-pet"
 version = "0.3.0"
 edition = "2021"
-description = "鲸鱼娘桌宠（原生分层窗口版）：dsh-whale-musume 全套功能的 Rust 原生移植，不依赖 WebView2"
+description = "Unofficial Rust-native port of dsh-whale-musume (whale pet): full feature parity, no WebView2 required"
 
 [dependencies]
 windows = { version = "0.61", features = [

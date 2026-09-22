@@ -2,6 +2,8 @@
 
 WorkBuddy 桌宠「小鲸鱼娘」的 **非官方 Rust 原生移植版**，逐项对齐原版 Web 桌宠（[dsh-whale-musume](https://github.com/Sutera-Diffusus/dsh-whale-musume)）的动画、交互与玩法，但不依赖 WebView2 / 浏览器 / 任何运行时——一个约 2 MB 的单文件 exe + 一目录 WEBP 立绘。
 
+> **与上游的关系**：本项目由第三方（ClutchBear）独立开发，**非上游官方发布，与 dsh-whale-musume 作者无隶属关系**。「鲸鱼娘」为上游自创角色名，本项目沿用仅为说明移植来源。项目名、图标、立绘均取自上游（MIT），完整归属见 [第七节](#七许可与致谢)。
+
 - 技术栈：Rust + Win32 GDI（`UpdateLayeredWindow` 逐像素透明分层窗口）+ SQLite 直读
 - 平台：Windows 10/11（x64），自动适配 DPI（Per-Monitor V2）
 - 角色：`assets/*.webp` 全套立绘 90+ 张（待机 / 工作 / 表情包 / 节日 / 天气 / 日常），运行时直接读文件、**换图不用重编译**
@@ -166,7 +168,7 @@ examples/        # gen_icon.rs（ico 生成）、alpha_check.rs（alpha 通道�
 
 | 复用什么 | 位置 |
 |---|---|
-| 全套立绘（92 张 WEBP，字节级同源） | `assets/**/*.webp`、`_selftest/assets/*.webp` |
+| 全套立绘（92 张 WEBP，字节级同源） | `assets/*.webp`、`_selftest/assets/*.webp`（自测夹具）、`dist/assets/*`（运行时副本，不入库） |
 | 任务 / 成就 / 称号 / 台词数据（由 `tools/gen-data.mjs` 从上游 `whale-moe-core.js` 原样导出） | `src/data.rs`（文件头已标注上游仓库地址） |
 | 状态机语义与交互设计（Rust 重实现） | `src/core.rs` |
 
